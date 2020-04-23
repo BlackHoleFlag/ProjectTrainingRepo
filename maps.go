@@ -3,8 +3,8 @@ package main
 import "fmt"
 
 type everHydra struct {
-	[]hydraHead								//whole hydra have set oh heads
-	body string								//whole body status in text
+	[3]hydraHead							//whole hydra have set oh heads
+	[5]body string								//whole body status in text
 	bodyHp float64							//how much hp
 }
 
@@ -22,10 +22,22 @@ type atackStruct struct {
 
 func main() {
 	//creating abilities for each head
-	abilityFire := atackStruct{"fireblast", 50}				
-	abilityCold := atackStruct{"frozen lance", 40}
-	abilityAcid := atackStruct("toxic spit", 30)
+	abilityFire := atackStruct {"fireblast", 50}				
+	abilityCold := atackStruct {"frozen lance", 40}
+	abilityAcid := atackStruct ("toxic spit", 30)
 
+	//creating heads for hydra
+	   headCeil := hydraHead{"Ceil", 200, abilityFire, false}
+	headAquinox := hydraHead{"Aquinox", 200, abilityCold, false}
+	  headBrokh := hydraHead{"Brokh", 200, abilityAcid, false}
 
+	//creating set(array) of heads
+	    headSet := [3]hydraHead{headCeil, headBrokh, headAquinox}
+
+	//creating statuses for body
+	 statusList := [5] string{"fine", "burned", "freezed", "poisoned", "dead"}
+
+	//creating hydra from parts
+	hydra1 := everHydra{headSet, statusList, 500}
 	thisIsMap := make map
 }
