@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import ("fmt"
+	"sync")
+
 	//what kind of facinating creatures they would be and what qualities they posess
 type animal struct {
 	nickname string
@@ -10,6 +12,7 @@ type animal struct {
 	note string
 	likes []string
 }
+var wg sync.WaitGroup
 	//Mission:PetStore
 func main(){
 	//Making animal example
@@ -71,26 +74,35 @@ func main(){
 	//Creating new map containing only apple lovers
 	index = 0
 	appleLoversMap := make(map[int]animal)
+	numberOfLikedThings:= 0
+	animalChannel:= make(chan animal)
 	for _, pickedAnimal:= range animalMap {
 
-		numberOfLikedThings := len(pickedAnimal.likes)
-		if numberOfLikedThings > index {
-
-			switch pickedAnimal.likes[index] {
-				case "apples": appleLoversMap[index] = pickedAnimal }
-			//case pickedAnimal.likes[index] == "apples":
-			//	appleLoversMap[index] = pickedAnimal}
-			
-			//
-			//
-			index++
-		}
+		numberOfLikedThings = len(pickedAnimal.likes)
+		wg.Add(5)
+		go applePicker(animalChannel, pickedAnimal, numberOfLikedThings)
+		//returnedAnimal := <-animalChannel
+		wg.Wait()
+		appleLoversMap[index] = <- animalChannel	
+		index++	
 		
 		
 	}
 	fmt.Println(appleLoversMap)
 }
 
-func pickGood() {
-	
+func applePicker(animalChannel chan animal, pickedAnimal animal, numberOfLikedThings int)  {
+	index :=0
+	for index < numberOfLikedThings {
+		
+		if pickedAnimal.likes[index] == "apples" {
+			animalChannel <- pickedAnimal
+		}else{fmt.Println("...")}
+		/*switch pickedAnimal.likes[index] {
+			case "apples": appleLoversMap[index] = pickedAnimal }			
+		index++
+		fmt.Println(index)*/
+		index++
+	}
+	wg.Done()
 }
