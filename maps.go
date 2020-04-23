@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	//"cryptorandomizer"
+)
 
 type everHydra struct {
+	wholeName	string						//name of whole hydra as unit
 	hydraHeadSet [3]hydraHead				//whole hydra have set oh heads
 	body [5]string							//whole body status in text
 	bodyHp float64							//how much hp
@@ -47,8 +51,23 @@ func main() {
 	 statusList := [5] string {"fine", "burned", "freezed", "poisoned", "dead"}
 
 	//creating hydra from parts
-	hydra1 := everHydra {headSet, statusList, 500}
+	hydra1 := everHydra {"Jeronimus hydra", headSet, statusList, 500}
 	fmt.Println(hydra1)
+	//for now lets just make our hydra a twin
+	hydra2 := everHydra {"Farocimus hydra", headSet, statusList, 500}
 
-	//thisIsMap := make map
+	//making list of all our hydras
+	hydraList :=[]everHydra{hydra1, hydra2}
+
+	hydraMap := make(map[string] []everHydra)
+	for _, p := range hydraList {
+		for _, l := range p.body{
+			hydraMap[l] = append(hydraMap[l], p)
+		}
+	}
+	for _, p:= range hydraMap["fine"] {
+		fmt.Println(p.wholeName, "is feeling good")
+	}
+
+	 
 }
