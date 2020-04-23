@@ -65,44 +65,36 @@ func main(){
 	//lets say we got new animal arriving
 	petSeven := animal {"Fransise","polar bear" , 554.45, true, "He was on commercials many time", [] string{"ice","meat","sunglasses"}}
 
-	//now we need add him on a map, but witch one?
+	//now we need add him on a map, but witch one? both?
 	switch petSeven.behavior{
-	case true: goodAnimalMap[petSeven.animalType] = petSeven
+	case true: 
+		goodAnimalMap[petSeven.animalType] = petSeven
+		animalMap[petSeven.animalType] = petSeven
+	default: animalMap[petSeven.animalType] = petSeven
 	}
+	fmt.Println("This animals a good: ")
 	fmt.Println(goodAnimalMap)
 
 	//Creating new map containing only apple lovers
-	index = 0
-	appleLoversMap := make(map[int]animal)
+	appleLoversMap := make(map[string]animal)
 	numberOfLikedThings:= 0
-	animalChannel:= make(chan animal)
+	
 	for _, pickedAnimal:= range animalMap {
 
+		index = 0
 		numberOfLikedThings = len(pickedAnimal.likes)
-		wg.Add(5)
-		go applePicker(animalChannel, pickedAnimal, numberOfLikedThings)
-		//returnedAnimal := <-animalChannel
-		wg.Wait()
-		appleLoversMap[index] = <- animalChannel	
-		index++	
+
+		for index < numberOfLikedThings {
 		
+			if pickedAnimal.likes[index] == "apples" {
+				appleLoversMap[pickedAnimal.animalType] = pickedAnimal
+			}
+			
+		index++	
+		}
 		
 	}
+	fmt.Println("This animals like apples: ")
 	fmt.Println(appleLoversMap)
 }
 
-func applePicker(animalChannel chan animal, pickedAnimal animal, numberOfLikedThings int)  {
-	index :=0
-	for index < numberOfLikedThings {
-		
-		if pickedAnimal.likes[index] == "apples" {
-			animalChannel <- pickedAnimal
-		}else{fmt.Println("...")}
-		/*switch pickedAnimal.likes[index] {
-			case "apples": appleLoversMap[index] = pickedAnimal }			
-		index++
-		fmt.Println(index)*/
-		index++
-	}
-	wg.Done()
-}
