@@ -1,7 +1,9 @@
 package main
 
 import ("fmt"
-	"sync")
+	"sync"
+	"sort"
+)
 
 	//what kind of facinating creatures they would be and what qualities they posess
 type animal struct {
@@ -75,6 +77,9 @@ func main(){
 	fmt.Println("This animals a good: ")
 	fmt.Println(goodAnimalMap)
 
+	//Also add bear to slice of animals
+	animalList = append(animalList, petSeven)
+
 	//Creating new map containing only apple lovers
 	appleLoversMap := make(map[string]animal)
 	numberOfLikedThings:= 0
@@ -96,5 +101,34 @@ func main(){
 	}
 	fmt.Println("This animals like apples: ")
 	fmt.Println(appleLoversMap)
+	fmt.Println("")
+
+	//Creating a map with key values of weight
+	weightAnimalMap := make(map[float32]animal)
+	index = 0
+	for _, pickedAnimal:= range animalMap {
+
+		weightAnimalMap[animalList[index].weight] = animalList[index] 
+		index++
+		fmt.Printf("You picked up %v %v - weight is: %v\n", pickedAnimal.animalType, pickedAnimal.nickname, pickedAnimal.weight)
+	}
+	//Now we need to sort our new map
+	sortWeightList := make([]float32, 0, len(weightAnimalMap))
+
+	for pickedAnimal := range weightAnimalMap {
+		sortWeightList = append(sortWeightList, pickedAnimal)
+	}
+	//sortedWeightAnimalMap := make(map[float32]animal)
+	sort.Slice(sortWeightList, func(i, j int) bool { return sortWeightList[i] < sortWeightList[j] })
+
+
+	index =0
+	for _, pickedAnimal := range sortWeightList {
+		fmt.Printf("%v ", pickedAnimal)
+		fmt.Println(weightAnimalMap[sortWeightList[index]].animalType)
+		index++
+	}
+	fmt.Println("")
+	//fmt.Print(sortedWeightAnimalMap, weightAnimalMap[sortWeightList])
 }
 
