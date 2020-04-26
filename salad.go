@@ -174,40 +174,53 @@ func serveCustomers(allProduce map[int]map[string]int, line []customerStruct, ma
 	 earnings := 0.00
 	for _, customer:= range line {
 		//how much produce manager want to use for salad
+		salad = [] ingredientStruct{}
 		wantToUseMeat    := cryptorandomizer.Num(1) + manager.meatModifier
 		wantToUseGreens  := cryptorandomizer.Num(2) + manager.greensModifier
 		wantToUseVeggies := cryptorandomizer.Num(4) + 1 + manager.veggieModifier
 		wantToUseSauce   := cryptorandomizer.Num(1) + manager.sauceModifier
 		//salad making process
 		for wantToUseMeat > 0 {
-			meatChoosing := greensListAll[cryptorandomizer.Num(4)].name
+			num := cryptorandomizer.Num(4)
+			meatChoosing := meatListAll[num].name
 			if meatProduce[meatChoosing] > 0 {
-			salad = append(salad, meatProduce[meatChoosing])
+			salad = append(salad, meatListAll[num])
 			meatProduce[meatChoosing]--
+			wantToUseMeat--
+			break
 			}
 			wantToUseMeat--
 		} 
 		for wantToUseGreens > 0 {
-			greensChoosing := meatListAll[cryptorandomizer.Num(3)].name
+			num := cryptorandomizer.Num(3)
+			greensChoosing := greensListAll[num].name
 			if greensProduce[greensChoosing] > 0 {
-			salad = append(salad, greensChoosing)
+			salad = append(salad, greensListAll[num])
 			greensProduce[greensChoosing]--
+			wantToUseGreens--
+			break
 			}
 			wantToUseGreens--
 		} 
 		for wantToUseVeggies > 0 {
-			veggiesChoosing := vegeterianListAll[cryptorandomizer.Num(3)].name
+			num := cryptorandomizer.Num(5)
+			veggiesChoosing := vegeterianListAll[num].name
 			if veggiesProduce[veggiesChoosing] > 0 {
-			salad = append(salad, veggiesChoosing)
+			salad = append(salad, vegeterianListAll[num])
 			veggiesProduce[veggiesChoosing]--
+			wantToUseVeggies--
+			break
 			}
 			wantToUseVeggies--
 		} 	
 		for wantToUseSauce > 0 {
-			sauceChoosing := sauceListAll[cryptorandomizer.Num(3)].name
+			num := cryptorandomizer.Num(5)
+			sauceChoosing := sauceListAll[num].name
 			if sauceProduce[sauceChoosing] > 0 {
-			salad = append(salad, sauceChoosing)
+			salad = append(salad, sauceListAll[num])
 			sauceProduce[sauceChoosing]--
+			wantToUseSauce--
+			break
 			}
 			wantToUseSauce--
 		} 	
@@ -216,23 +229,31 @@ func serveCustomers(allProduce map[int]map[string]int, line []customerStruct, ma
 		for _, item:= range salad {
 			saladPrice = saladPrice + item.basePrice
 		}
-		saladPrice = saladPrice*manager.rating 
+		saladPrice = saladPrice*manager.rating*2
 
 		//those we going to use to get salad rating from customer 
 		dislike:=0
 		like:=0
 		//selling salad to customer
 		for _, item:= range salad {
+			itemName := item.name
 			for _, disliked := range customer.dislike {
+				if itemName == disliked{
 			dislike++
-			if dislike > 1{
-				fmt.Println("Iam not buying that!")
+			break
+				}
+			if dislike > 2{
+				fmt.Printf("%v Iam not buying that! I dont like %v\n", customer.name ,disliked)
 				customer.readyToPay = customer.readyToPay - 10
 				manager.rating = manager.rating - 0.1
 			}
+			
 			}
-			for _, liked := range customer.like {
+			for _, liked := range customer.likes {
+				if itemName == liked {
 				like++
+				break
+				}
 			if like > 1 {
 				customer.readyToPay = customer.readyToPay + 2
 				manager.rating = manager.rating + 0.1
@@ -242,7 +263,7 @@ func serveCustomers(allProduce map[int]map[string]int, line []customerStruct, ma
 		}
 		if customer.readyToPay > saladPrice {
 			earnings = earnings + saladPrice
-			fmt.Printf("%v sold for %v",salad, saladPrice)
+			fmt.Printf("%v sold for %v\n",salad, saladPrice)
 		}
 	}
 	return earnings
@@ -277,7 +298,7 @@ func main() {
 
 
 
-	fmt.Println(earnings)
+	fmt.Printf("Today you earned: %v\n",earnings)
 	//fmt.Println(produceAll)
 	fmt.Println(managerMeatLover.money)
 }
