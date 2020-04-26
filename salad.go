@@ -15,7 +15,10 @@ type managerStruct struct {
 	strategyGreens	float64
 	strategyVeggies float64
 	strategySauce float64
-	specialModifier int
+	meatModifier int
+	greensModifier int
+	veggieModifier int
+	sauceModifier int
 	rating float64
 
 }
@@ -32,16 +35,17 @@ type customerStruct struct {
 	readyToPay float64
 }
 
-func market(managerShoping managerStruct) (map[int]map[string]int, float64) {
-													//ALL PRICES based on how much needed for 1 order of salad
 	//All possible meats on market
-	meatListAll := [4] ingredientStruct {{"grilled chicken", 1.85} , {"chopped steak", 4.25} , {"crispy shrimps", 2.50} , {"bacon", 2.05}}
+	var meatListAll = [4] ingredientStruct {{"grilled chicken", 1.85} , {"chopped steak", 4.25} , {"crispy shrimps", 2.50} , {"bacon", 2.05}}
 	//All possible dressings on market
-	sauceListAll := [5] ingredientStruct {{"salt and pepper only",0.01} , {"mayo", 0.15} , {"ranch", 0.29} , {"olive oil", 0.33} , {"chipottle", 0.25}}
+	var sauceListAll = [5] ingredientStruct {{"salt and pepper only",0.01} , {"mayo", 0.15} , {"ranch", 0.29} , {"olive oil", 0.33} , {"chipottle", 0.25}}
 	//All possible veggies
-	vegeterianListAll := [5]ingredientStruct {{"raddish", 0.15} , {"minced onions", 0.10} , {"cherry tomatoes", 0.35} , {"cucumbers", 0.20} , {"black olives", 0.18}}
+	var vegeterianListAll = [5]ingredientStruct {{"raddish", 0.15} , {"minced onions", 0.10} , {"cherry tomatoes", 0.35} , {"cucumbers", 0.20} , {"black olives", 0.18}}
 	//All possible greens
-	greensListAll := [3] ingredientStruct {{"spinach", 0.33} , {"lettuce", 0.15} , {"arugula", 0.25}}
+	var greensListAll = [3] ingredientStruct {{"spinach", 0.33} , {"lettuce", 0.15} , {"arugula", 0.25}}
+
+func market(managerShoping managerStruct) (map[int]map[string]int, float64) {
+												
 
 	//Lets find out how much money manager willing to spend on types of produce
 	managerShopingMeat := managerShoping.strategyMeat * managerShoping.money
@@ -120,7 +124,7 @@ func makeCustomerType() customerStruct{
 	//generating likes
 		for howManyLikes > 0 {
 			genLike := potentialLikeDis[cryptorandomizer.Num(17)]
-	
+			//if i dont check len 0 golangbear dont want to go in range of likes/dislikes
 			if len(customer.likes) >  0 {
 				for _, r := range customer.likes {
 				
@@ -149,11 +153,99 @@ func makeCustomerType() customerStruct{
 		}
 		howManyDis--
 	}
+	//generating rest of the stats
 	customer.name = potentialNames[cryptorandomizer.Num(8)]
 	customer.readyToPay = 5.0 + float64(cryptorandomizer.Num(10))
 	
-
+	//returning and sending them in line
 	return customer
+}
+
+func serveCustomers(allProduce map[int]map[string]int, line []customerStruct, manager managerStruct)float64{
+	//lets unpack our produce
+	  meatProduce := allProduce[1]
+	greensProduce := allProduce[2]
+   veggiesProduce := allProduce[3]
+	 sauceProduce := allProduce[4]
+
+	 //salad
+	 salad := [] ingredientStruct{}
+	 //how much did we made today $$
+	 earnings := 0.00
+	for _, customer:= range line {
+		//how much produce manager want to use for salad
+		wantToUseMeat    := cryptorandomizer.Num(1) + manager.meatModifier
+		wantToUseGreens  := cryptorandomizer.Num(2) + manager.greensModifier
+		wantToUseVeggies := cryptorandomizer.Num(4) + 1 + manager.veggieModifier
+		wantToUseSauce   := cryptorandomizer.Num(1) + manager.sauceModifier
+		//salad making process
+		for wantToUseMeat > 0 {
+			meatChoosing := greensListAll[cryptorandomizer.Num(4)].name
+			if meatProduce[meatChoosing] > 0 {
+			salad = append(salad, meatProduce[meatChoosing])
+			meatProduce[meatChoosing]--
+			}
+			wantToUseMeat--
+		} 
+		for wantToUseGreens > 0 {
+			greensChoosing := meatListAll[cryptorandomizer.Num(3)].name
+			if greensProduce[greensChoosing] > 0 {
+			salad = append(salad, greensChoosing)
+			greensProduce[greensChoosing]--
+			}
+			wantToUseGreens--
+		} 
+		for wantToUseVeggies > 0 {
+			veggiesChoosing := vegeterianListAll[cryptorandomizer.Num(3)].name
+			if veggiesProduce[veggiesChoosing] > 0 {
+			salad = append(salad, veggiesChoosing)
+			veggiesProduce[veggiesChoosing]--
+			}
+			wantToUseVeggies--
+		} 	
+		for wantToUseSauce > 0 {
+			sauceChoosing := sauceListAll[cryptorandomizer.Num(3)].name
+			if sauceProduce[sauceChoosing] > 0 {
+			salad = append(salad, sauceChoosing)
+			sauceProduce[sauceChoosing]--
+			}
+			wantToUseSauce--
+		} 	
+		//lets find out price of salad we made
+		saladPrice:=0.0
+		for _, item:= range salad {
+			saladPrice = saladPrice + item.basePrice
+		}
+		saladPrice = saladPrice*manager.rating 
+
+		//those we going to use to get salad rating from customer 
+		dislike:=0
+		like:=0
+		//selling salad to customer
+		for _, item:= range salad {
+			for _, disliked := range customer.dislike {
+			dislike++
+			if dislike > 1{
+				fmt.Println("Iam not buying that!")
+				customer.readyToPay = customer.readyToPay - 10
+				manager.rating = manager.rating - 0.1
+			}
+			}
+			for _, liked := range customer.like {
+				like++
+			if like > 1 {
+				customer.readyToPay = customer.readyToPay + 2
+				manager.rating = manager.rating + 0.1
+			}
+			}	
+			
+		}
+		if customer.readyToPay > saladPrice {
+			earnings = earnings + saladPrice
+			fmt.Printf("%v sold for %v",salad, saladPrice)
+		}
+	}
+	return earnings
 }
 
 func main() {
@@ -165,24 +257,28 @@ func main() {
 		 strategyGreens : 0.15,
 		strategyVeggies : 0.15,
 		  strategySauce : 0.10,
-		specialModifier	: 1,
+		   meatModifier : 1,
+		 greensModifier : 0,
+	     veggieModifier : 0,
+	      sauceModifier : 0,
 		         rating : 1.0,
 	}
 
 	//Lets make potential customers and return slice of them
 	customerLine := makeCustomerLine(managerMeatLover.rating)
-	fmt.Println(customerLine)
+
 	//sending manager to the market, returning produce and money left
 	produceAll, moneyLeft := market(managerMeatLover)
 	managerMeatLover.money = moneyLeft
-	//Now lets make customer line for today
+
+	//Now lets serve custumers
+	earnings := serveCustomers(produceAll, customerLine, managerMeatLover)
 	
-	
 
 
 
-
-	fmt.Println(produceAll)
+	fmt.Println(earnings)
+	//fmt.Println(produceAll)
 	fmt.Println(managerMeatLover.money)
 }
 
