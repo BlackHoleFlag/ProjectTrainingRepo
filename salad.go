@@ -94,7 +94,7 @@ func market(managerShoping managerStruct) (map[int]map[string]int, float64) {
 func makeCustomerLine(rating float64) []customerStruct {
 
 	//How many customers would come today, rating dependent
-	numberOfCustomers := math.Round(10 * rating) + math.Round(float64(cryptorandomizer.Num(30)) * rating)
+	numberOfCustomers :=  math.Round(10 * rating) + math.Round(float64(cryptorandomizer.Num(9)+1) * rating)
 	customerLine := []customerStruct{}
 	
 	for numberOfCustomers >0 {
@@ -116,25 +116,38 @@ func makeCustomerType() customerStruct{
 	//lets find out how many likes/dislikes our potential customer would have
 	howManyLikes := 1 + cryptorandomizer.Num(2)
 	howManyDis := 1 + cryptorandomizer.Num(2)
+
 	//generating likes
-		for howManyLikes >=0 {
+		for howManyLikes > 0 {
 			genLike := potentialLikeDis[cryptorandomizer.Num(17)]
-			for _, r:= range customer.likes {
-				if r == genLike {
-					break
+	
+			if len(customer.likes) >  0 {
+				for _, r := range customer.likes {
+				
+				if genLike != r {
+					customer.likes = append(customer.likes, genLike)	
 				}
+				}
+			} else {
 				customer.likes = append(customer.likes, genLike)
 			}
+			howManyLikes--
 		}
 	//generating dislikes
-	for howManyDis >=0 {
-		genDislike := potentialLikeDis[cryptorandomizer.Num(17)]
-		for _, r:= range customer.dislike {
-			if r == genDislike {
-				break
+	for howManyDis > 0 {
+		genDis := potentialLikeDis[cryptorandomizer.Num(17)]
+
+		if len(customer.dislike) >  0 {
+			for _, r := range customer.dislike {
+			
+			if genDis != r {
+				customer.dislike = append(customer.dislike, genDis)	
 			}
-			customer.dislike = append(customer.dislike, genDislike)
+			}
+		} else {
+			customer.dislike = append(customer.dislike, genDis)
 		}
+		howManyDis--
 	}
 	customer.name = potentialNames[cryptorandomizer.Num(8)]
 	customer.readyToPay = 5.0 + float64(cryptorandomizer.Num(10))
