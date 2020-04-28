@@ -6,12 +6,14 @@ type finishedProductStruct struct {
 	productName string
 	wood int
 	metal int
+	price int
 }
 
 type buildProcessInterface interface {
 	setProductName() buildProcessInterface
 	setWood() buildProcessInterface
 	setMetal() buildProcessInterface
+	setPrice() buildProcessInterface
 	getItem() finishedProductStruct
 }
 
@@ -24,7 +26,7 @@ func (m *manufacturingDirStruct) setBuilder(b buildProcessInterface) {
 }
 
 func (m *manufacturingDirStruct) construct() finishedProductStruct {
-	m.builder.setProductName().setWood().setMetal()
+	m.builder.setProductName().setWood().setMetal().setPrice()
 	return m.builder.getItem()
 }
 
@@ -33,6 +35,7 @@ func (m *manufacturingDirStruct) printProduct() {
 	fmt.Printf("Item: %s \n", item.productName)
 	fmt.Printf("Used wood: %d \n", item.wood)
 	fmt.Printf("Used metals: %d \n", item.metal)
+	fmt.Printf("Price is: %d\n", item.price)
 	fmt.Printf("===============\n")
 
 }
@@ -51,6 +54,10 @@ func (p *pickAxeStruct) setWood() buildProcessInterface {
 }
 func (p *pickAxeStruct) setMetal() buildProcessInterface {
 	p.finishedProduct.metal = 2
+	return p
+}
+func (p *pickAxeStruct) setPrice() buildProcessInterface{
+	p.finishedProduct.price = p.finishedProduct.wood * 2 + p.finishedProduct.metal * 3
 	return p
 }
 func (p *pickAxeStruct) getItem() finishedProductStruct {
@@ -73,6 +80,10 @@ func (p *spearStruct) setMetal() buildProcessInterface {
 	p.finishedProduct.metal = 1
 	return p
 }
+func (p *spearStruct) setPrice() buildProcessInterface{
+	p.finishedProduct.price = p.finishedProduct.metal * 3 + p.finishedProduct.wood * 2
+	return p
+}
 func (p *spearStruct) getItem() finishedProductStruct {
 	return p.finishedProduct
 }
@@ -83,7 +94,6 @@ func main() {
 	manuf.setBuilder(pickAxe)
 	manuf.construct()
 	manuf.printProduct()
-	fmt.Println(pickAxe)
 	spear := &spearStruct{}
 	manuf.setBuilder(spear)
 	manuf.construct()
