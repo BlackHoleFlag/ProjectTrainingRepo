@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"os"
+	
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -15,8 +15,8 @@ func main() {
 	
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to initialize sdl: %s\n", err)
-		os.Exit(1)
+		fmt.Println("Failed to initialize sdl: ", err)
+		return
 	}
 
 	window, err := sdl.CreateWindow(
@@ -26,21 +26,21 @@ func main() {
 		sdl.WINDOW_OPENGL)
 	
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
-			os.Exit(2)
+			fmt.Println("Failed to create renderer: ", err)
+			return
 		}
 	defer window.Destroy()
 
 	renderer, err := sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
-		os.Exit(2)
+		fmt.Println("Failed to create renderer: ", err)
+		return
 	}
 	defer renderer.Destroy()
 	renderer.Clear()
 
-	var event sdl.Event
-	isRunning := true
+	//var event sdl.Event
+	//isRunning := true
 	
 	plr, err := newPlayer(renderer)
 	if err != nil {
@@ -48,7 +48,14 @@ func main() {
 		return
 	}
 
-	for isRunning {
+	for {
+		for event := sdl.PollEvent(); event != nil ; event = sdl.PollEvent() {
+			switch event.(type) {
+			case *sdl.QuitEvent:
+				return
+			}
+		}
+	/*for isRunning {
 		// handle events, in this case escape key and close window
 		for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch t := event.(type) {
@@ -59,7 +66,7 @@ func main() {
 					isRunning = false
 				}
 			}
-		}
+		}*/
 
 		renderer.SetDrawColor(255,255,255,255)
 		renderer.Clear()

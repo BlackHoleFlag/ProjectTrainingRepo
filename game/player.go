@@ -17,7 +17,7 @@ type player struct {
 func newPlayer(renderer *sdl.Renderer) (p player, err error) {
 	
 
-	img, err := sdl.LoadBMP("C:/Users/Yawhoo/Documents/GitHub/ProjectTrainingRepo/game/sprites/player2.bmp")
+	img, err := sdl.LoadBMP("sprites/player2.bmp")
 	if err != nil{
 		return player{}, fmt.Errorf("Failed to load player sprite: %w", err)
 		
